@@ -41,9 +41,12 @@
 		(document.getElementsByTagName('body')[0]).appendChild(c);
 
 		var video = document.getElementById('v');
+		var ctx = c.getContext('2d')
 		setInterval(function() {
-			var canvas = document.getElementById('c');
-			canvas.getContext('2d').drawImage(video, 0, 0, 512, 512);
+			ctx.drawImage(video, 0, 0, 512, 512);
+			ctx.fillStyle = 'white';
+			ctx.font = '64pt sans-serif';
+			ctx.fillText(video.currentTime.toFixed(2), 10, 75);
 		}, 1000 / 50); //50FPS
 	}
 	outputVideo();
