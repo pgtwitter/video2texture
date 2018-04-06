@@ -11,11 +11,11 @@
 			navigator.mozGetUserMedia || navigator.msGetUserMedia);
 	}
 	var onFailSoHard = function(e) {
-		alert("Could not use the camera.");
+		alert('Could not use the camera.');
 	};
 
 	if (!hasGetUserMedia()) {
-		alert("This browser  is not support user media.");
+		alert('This browser  is not support user media.');
 	}
 	window.URL = window.URL ||
 		window.webkitURL;
@@ -23,7 +23,7 @@
 		navigator.webkitGetUserMedia ||
 		navigator.mozGetUserMedia ||
 		navigator.msGetUserMedia;
-	var video = document.getElementById("v");
+	var video = document.getElementById('v');
 	navigator.getUserMedia({
 		video: true
 	}, function(stream) {
@@ -40,10 +40,10 @@
 		c.style.position = 'absolute';
 		(document.getElementsByTagName('body')[0]).appendChild(c);
 
-		var video = document.getElementById("v");
+		var video = document.getElementById('v');
 		setInterval(function() {
-			var canvas = document.getElementById("c");
-			canvas.getContext("2d").drawImage(video, 0, 0, 512, 512);
+			var canvas = document.getElementById('c');
+			canvas.getContext('2d').drawImage(video, 0, 0, 512, 512);
 		}, 1000 / 50); //50FPS
 	}
 	outputVideo();
