@@ -1,176 +1,25 @@
-<style>
-	html,
-	body,
-	div {
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
-</style>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="init.css">
 <video id="v" style="display:none;" width="512px" height="512px" autoplay loop>
 	<source src="outfile.mp4" type="video/mp4" width="512px" height="512px"></source>
 </video>
-<div id="container"></div>
-
+<div id="container" style="position:absolute;"></div>
+<button id="webcamBtn" style="position:absolute;top:0px;right:0px;">use WebCam</button>
 <script src="./js/threejs/three.min.js"></script>
 <script src="./js/threejs/OrbitControls.js"></script>
+<script src="./js/threejs/stats.min.js"></script>
+<script src="./js/video2canvas.js"></script>
+<script src="./js/cubes.js"></script>
+<script src="./js/useWebCam.js"></script>
 <script>
-	var hasGetUserMedia = function() {
-		return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-			navigator.mozGetUserMedia || navigator.msGetUserMedia);
-	}
-	var onFailSoHard = function(e) {
-		alert('Could not use the camera.');
-	};
-
-	if (!hasGetUserMedia()) {
-		alert('This browser  is not support user media.');
-	}
-	window.URL = window.URL ||
-		window.webkitURL;
-	navigator.getUserMedia = navigator.getUserMedia ||
-		navigator.webkitGetUserMedia ||
-		navigator.mozGetUserMedia ||
-		navigator.msGetUserMedia;
+	var container = document.getElementById('container');
 	var video = document.getElementById('v');
-	navigator.getUserMedia({
-		video: true
-	}, function(stream) {
-		video.src = window.URL.createObjectURL(stream);
-	}, onFailSoHard);
-</script>
-<script>
-	function gray(ctx) {
-		var imagedata = ctx.getImageData(0, 0, 512, 512);
-		var idata = imagedata.data;
-		var num = idata.length;
-		var pix = num / 4;
-		for (var i = 0; i < pix; i++) {
-			var r = idata[i * 4];
-			var g = idata[i * 4 + 1];
-			var b = idata[i * 4 + 2];
-			var g = parseInt((r * 30 + g * 59 + b * 11) / 100);
-			idata[i * 4 + 3] = (g > 50) ? 255 : 0;
-		}
-		ctx.putImageData(imagedata, 0, 0);
-	}
-
-	function outputVideo() {
-		var c = document.createElement('canvas');
-		c.setAttribute('id', 'c');
-		c.setAttribute('width', '512');
-		c.setAttribute('height', '512');
-		c.style.display = 'none';
-		c.style.position = 'absolute';
-		(document.getElementsByTagName('body')[0]).appendChild(c);
-
-		var video = document.getElementById('v');
-		var ctx = c.getContext('2d')
-		setInterval(function() {
-			ctx.drawImage(video, 0, 0, 512, 512);
-			gray(ctx);
-			ctx.fillStyle = 'lightgreen';
-			ctx.font = '64pt sans-serif';
-			ctx.fillText(video.currentTime.toFixed(2), 10, 75);
-		}, 1000 / 30); //30FPS
-	}
-	outputVideo();
-</script>
-<script>
-	(function() {
-		var camera, scene, renderer;
-		var cubs;
-
-		function InitMesh() {
-			var geometry = new THREE.CubeGeometry(3, 3, 3);
-			var material = new THREE.MeshBasicMaterial({
-				transparent: true,
-				side: THREE.DoubleSide,
-				alphaTest: .5,
-			});
-			if (texture !== void 0)
-				material.map = texture;
-			cubs = [];
-			cubs.push(new THREE.Mesh(geometry, material));
-			scene.add(cubs[0]);
-			cubs.push(new THREE.Mesh(geometry, material));
-			scene.add(cubs[1]);
-			cubs.push(new THREE.Mesh(geometry, material));
-			scene.add(cubs[2]);
-			cubs[0].position.x = -2.44;
-			cubs[0].position.y = -2;
-			cubs[0].rotation.y = 45;
-			cubs[1].position.x = 2.44;
-			cubs[1].position.y = -2;
-			cubs[1].rotation.y = 45;
-			cubs[2].position.y = 2;
-			cubs[2].rotation.y = 45;
-		}
-
-		function InitRenderer() {
-			var WIDTH = window.innerWidth;
-			var HEIGHT = window.innerHeight;
-			var VIEW_ANGLE = 55;
-			var ASPECT = WIDTH / HEIGHT;
-			var NEAR = 1;
-			var FAR = 500;
-			camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-			camera.position.z = 10;
-			scene = new THREE.Scene();
-			scene.add(camera);
-			renderer = new THREE.WebGLRenderer({
-				antialias: true,
-			});
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.setSize(WIDTH, HEIGHT);
-			renderer.setClearColor(0xeeeeff, 1);
-
-			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-			cameraControls.target.set(0, 0, 0);
-			cameraControls.maxDistance = 400;
-			cameraControls.minDistance = 10;
-			cameraControls.update();
-
-			document.getElementById('container').appendChild(renderer.domElement);
-		}
-
-		function Animate() {
-			requestAnimationFrame(Animate);
-			UpdateMotion();
-			if (texture !== void 0)
-				texture.needsUpdate = true;
-			renderer.render(scene, camera);
-			renderer.setSize(window.innerWidth, window.innerHeight);
-		}
-
-		function UpdateMotion() {
-			var time = Date.now() * 0.001;
-			var delta = Math.sin(time);
-			cubs[0].rotation.y = Math.PI / 4 + 0.7 * delta;
-			cubs[1].scale.x = 1 + 0.2 * delta;
-			cubs[1].scale.y = 1 + 0.2 * delta;
-			cubs[1].scale.z = 1 + 0.2 * delta;
-			cubs[2].position.y = 2 + 0.7 * delta;
-		}
-
-		function GetTexture(targetCanvas) {
-			if (!targetCanvas) return void 0;
-			targetCanvas.setAttribute('width', '512');
-			targetCanvas.setAttribute('height', '512');
-			targetCanvas.style.width = 512;
-			targetCanvas.style.height = 512;
-			targetCanvas.style.display = 'none';
-			targetCanvas.style.position = 'absolute';
-			return (new THREE.Texture(targetCanvas));
-		}
-
-		function Init() {
-			InitRenderer();
-			InitMesh();
-			Animate();
-		}
-
-		var texture = GetTexture(document.getElementById('c'));
-		Init();
-	})();
+	var canvas = GetCanvas('c', video);
+	var btn = document.getElementById('webcamBtn');
+	container.style.width = window.innerWidth;
+	container.style.height = window.innerHeight;
+	cubesWithCanvas(container, canvas);
+	btn.addEventListener('click', function() {
+		useWebCam(video);
+	}, false);
 </script>
