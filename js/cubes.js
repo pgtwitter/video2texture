@@ -2,7 +2,7 @@
 	var camera, scene, renderer;
 	var texture = void 0;
 	var cubes;
-	var container;
+	var container, stats;
 
 	function InitMesh() {
 		var geometry = new THREE.CubeGeometry(3, 3, 3);
@@ -56,6 +56,8 @@
 		cameraControls.update();
 
 		container.appendChild(renderer.domElement);
+		stats = new Stats();
+		container.appendChild(stats.dom);
 	}
 
 	function Animate() {
@@ -64,6 +66,7 @@
 		if (texture !== void 0)
 			texture.needsUpdate = true;
 		renderer.render(scene, camera);
+		stats.update();
 	}
 
 	function UpdateMotion() {
